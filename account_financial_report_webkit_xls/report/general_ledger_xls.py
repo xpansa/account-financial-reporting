@@ -43,6 +43,7 @@ _column_sizes = [
     ('credit', 15),
     ('cumul_bal', 15),
     ('curr_bal', 15),
+    ('cumul_balance_curr', 20),
     ('curr_code', 7),
 ]
 
@@ -176,8 +177,11 @@ class general_ledger_xls(report_xls):
         ]
         if _p.amount_currency(data):
             c_specs += [
-                ('curr_bal', 1, 0, 'text', _('Curr. Bal.'),
+                ('curr_bal', 1, 0, 'text', _('Amount Currency'),
                  None, c_hdr_cell_style_right),
+                ('cumul_balance_curr', 1, 0, 'text',
+                    _('Cumul. Bal. in currency'),
+                    None, c_hdr_cell_style_right),
                 ('curr_code', 1, 0, 'text', _('Curr.'),
                  None, c_hdr_cell_style_center),
             ]
@@ -292,11 +296,15 @@ class general_ledger_xls(report_xls):
                         ('cumul_bal', 1, 0, 'number', cumul_balance,
                          None, ll_cell_style_decimal),
                     ]
+                    
                     if _p.amount_currency(data):
                         c_specs += [
                             ('curr_bal', 1, 0, 'number', line.get(
                                 'amount_currency') or 0.0, None,
-                             ll_cell_style_decimal),
+                                ll_cell_style_decimal),
+                            ('cumul_balance_curr', 1, 0, 'number',
+                                cumul_balance_curr, None,
+                                ll_cell_style_decimal),
                             ('curr_code', 1, 0, 'text', line.get(
                                 'currency_code') or '', None,
                              ll_cell_style_center),
