@@ -328,7 +328,7 @@ msgstr ""
 #: report:addons/account_financial_report_webkit/report/templates/account_report_general_ledger.mako:121
 #: report:addons/account_financial_report_webkit/report/templates/account_report_partners_ledger.mako:124
 #: report:addons/account_financial_report_webkit/report/templates/account_report_print_journal.mako:96
-msgid "Curr. Balance"
+msgid "Amount Currency"
 msgstr ""
 
 #. module: account_financial_report_webkit
@@ -1520,4 +1520,3 @@ msgstr ""
 #: view:account.aged.trial.balance.webkit:account_financial_report_webkit.account_aged_trial_balance_webkit
 msgid "At the end of"
 msgstr ""
-

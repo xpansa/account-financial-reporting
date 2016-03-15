@@ -24,7 +24,7 @@
         %>
 
         %if amount_currency(data):
-        <div class="act_as_table data_table" style="width: 1205px;">
+        <div class="act_as_table data_table" style="width: 1300px;">
         %else:
         <div class="act_as_table data_table" style="width: 1100px;">
         %endif
@@ -118,9 +118,11 @@
                         <div class="act_as_cell amount" style="width: 75px;">${_('Cumul. Bal.')}</div>
                         %if amount_currency(data):
                             ## currency balance
-                            <div class="act_as_cell amount sep_left" style="width: 75px;">${_('Curr. Balance')}</div>
+                            <div class="act_as_cell amount" style="width: 75px;">${_('Amount Currency')}</div>
+                            ## cumulative currency balance
+                            <div class="act_as_cell amount" style="width: 95px;">${_('Cumul. Bal. in currency')}</div>
                             ## curency code
-                            <div class="act_as_cell amount" style="width: 30px; text-align: right;">${_('Curr.')}</div>
+                            <div class="act_as_cell amount" sep_right style="width: 30px; text-align: right;">${_('Curr.')}</div>
                         %endif
                     </div>
                 </div>
@@ -159,10 +161,12 @@
                           ## balance cumulated
                           <div class="act_as_cell amount" style="padding-right: 1px;">${formatLang(cumul_balance) | amount }</div>
                          %if amount_currency(data):
-                              ## currency balance
-                              <div class="act_as_cell amount sep_left">${formatLang(cumul_balance_curr) | amount }</div>
-                              ## curency code
+                              ## currency amount
                               <div class="act_as_cell amount"></div>
+                              ## currency balance
+                              <div class="act_as_cell amount">${formatLang(cumul_balance_curr) | amount }</div>
+                              ## curency code
+                              <div class="act_as_cell amount sep_right"></div>
                          %endif
 
                         </div>
@@ -206,9 +210,12 @@
                           <div class="act_as_cell amount" style="padding-right: 1px;">${ formatLang(cumul_balance) | amount }</div>
                           %if amount_currency(data):
                               ## currency balance
-                              <div class="act_as_cell amount sep_left">${formatLang(line.get('amount_currency') or 0.0)  | amount }</div>
+                              <div class="act_as_cell amount">${formatLang(line.get('amount_currency') or 0.0)  | amount }</div>
+                              ## cumulative currency balance
+                              <div class="act_as_cell amount" style="padding-right: 1px;">${ formatLang(cumul_balance_curr) | amount }</div>
+
                               ## curency code
-                              <div class="act_as_cell amount" style="text-align: right;">${line.get('currency_code') or ''}</div>
+                              <div class="act_as_cell amount sep_right" style="text-align: right;">${line.get('currency_code') or ''}</div>
                           %endif
                       </div>
                       %endfor
@@ -227,12 +234,15 @@
                         %if amount_currency(data):
                             %if account.currency_id:
                                 ## currency balance
-                                <div class="act_as_cell amount sep_left" style="width: 75px;">${formatLang(cumul_balance_curr) | amount }</div>
+                                <div class="act_as_cell amount" style="width: 75px;">-</div>
+                                <div class="act_as_cell amount" style="width: 95px; padding-right: 1px;">${ formatLang(cumul_balance_curr) | amount }</div>
+
                             %else:
-                                <div class="act_as_cell amount sep_left" style="width: 75px;">-</div>
+                                <div class="act_as_cell amount" style="width: 75px;">-</div>
+                                <div class="act_as_cell amount" style="width: 95px;">-</div>
                             %endif
                             ## curency code
-                            <div class="act_as_cell amount" style="width: 30px; text-align: right;"></div>
+                            <div class="act_as_cell amount sep_right" style="width: 30px; text-align: right;"></div>
                         %endif
                     </div>
                 </div>
