@@ -296,7 +296,7 @@ class general_ledger_xls(report_xls):
                         ('cumul_bal', 1, 0, 'number', cumul_balance,
                          None, ll_cell_style_decimal),
                     ]
-                    
+
                     if _p.amount_currency(data):
                         c_specs += [
                             ('curr_bal', 1, 0, 'number', line.get(
@@ -338,6 +338,7 @@ class general_ledger_xls(report_xls):
                 ]
                 if _p.amount_currency(data):
                     if account.currency_id:
+                        c_specs += [('empty', 1, 0, 'text', None)]
                         c_specs += [('curr_bal', 1, 0, 'number',
                                      cumul_balance_curr, None,
                                      c_hdr_cell_style_decimal)]
