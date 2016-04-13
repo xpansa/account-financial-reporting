@@ -218,7 +218,13 @@ class CommonReportHeaderWebkit(common_report_header):
                 sql_join += " AND t.report_type IN %(report_type)s"
                 sql_filters.update({'report_type': tuple(filter_report_type)})
 
+            company_id = self.pool.get('res.users'). \
+                browse(self.cursor, self.uid, self.uid).company_id.id
+
+            sql_where += " and a.company_id = %(company_id)s "
             sql = ' '.join((sql_select, sql_join, sql_where))
+            sql_filters.update({'company_id': company_id})
+
             self.cursor.execute(sql, sql_filters)
             fetch_only_ids = self.cursor.fetchall()
             if not fetch_only_ids:
