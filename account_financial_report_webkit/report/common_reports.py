@@ -201,11 +201,13 @@ class CommonReportHeaderWebkit(common_report_header):
         res_ids = self.sort_accounts_with_structure(
             account_ids, res_ids, context=context)
 
+        sql_filters = {'ids': tuple(res_ids)}
+        sql_select = "SELECT a.id FROM account_account a"
+        sql_join = ""
+        sql_where = "WHERE a.id IN %(ids)s"
+
         if exclude_type or only_type or filter_report_type:
-            sql_filters = {'ids': tuple(res_ids)}
-            sql_select = "SELECT a.id FROM account_account a"
-            sql_join = ""
-            sql_where = "WHERE a.id IN %(ids)s"
+
             if exclude_type:
                 sql_where += " AND a.type not in %(exclude_type)s"
                 sql_filters.update({'exclude_type': tuple(exclude_type)})
@@ -218,20 +220,21 @@ class CommonReportHeaderWebkit(common_report_header):
                 sql_join += " AND t.report_type IN %(report_type)s"
                 sql_filters.update({'report_type': tuple(filter_report_type)})
 
-            company_id = self.pool.get('res.users'). \
-                browse(self.cursor, self.uid, self.uid).company_id.id
+        company_id = self.pool.get('res.users'). \
+            browse(self.cursor, self.uid, self.uid).company_id.id
 
-            sql_where += " and a.company_id = %(company_id)s "
-            sql = ' '.join((sql_select, sql_join, sql_where))
-            sql_filters.update({'company_id': company_id})
+        sql_where += " and a.company_id = %(company_id)s "
+        sql = ' '.join((sql_select, sql_join, sql_where))
+        sql_filters.update({'company_id': company_id})
 
-            self.cursor.execute(sql, sql_filters)
-            fetch_only_ids = self.cursor.fetchall()
-            if not fetch_only_ids:
-                return []
-            only_ids = [only_id[0] for only_id in fetch_only_ids]
-            # keep sorting but filter ids
-            res_ids = [res_id for res_id in res_ids if res_id in only_ids]
+        self.cursor.execute(sql, sql_filters)
+        fetch_only_ids = self.cursor.fetchall()
+        if not fetch_only_ids:
+            return []
+        only_ids = [only_id[0] for only_id in fetch_only_ids]
+        # keep sorting but filter ids
+        res_ids = [res_id for res_id in res_ids if res_id in only_ids]
+
         return res_ids
 
     ##########################################

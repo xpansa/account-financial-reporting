@@ -88,6 +88,10 @@ class CommonBalanceReportHeaderWebkit(CommonReportHeaderWebkit):
             ctx.update({'date_from': start,
                         'date_to': stop})
 
+        company_id = self.pool.get('res.users'). \
+            browse(self.cursor, self.uid, self.uid).company_id.id
+        ctx.update({'company_id': company_id})
+
         accounts = account_obj.read(
             self.cursor,
             self.uid,
@@ -292,7 +296,8 @@ class CommonBalanceReportHeaderWebkit(CommonReportHeaderWebkit):
                 continue
             if account.type == 'consolidation':
                 to_display_accounts.update(
-                    dict([(a.id, False) for a in account.child_consol_ids]))
+                    dict([(a.id, False) for a in account.child_consol_ids
+                         if a.company_id.id == account.company_id.id]))
             elif account.type == 'view':
                 to_display_accounts.update(
                     dict([(a.id, True) for a in account.child_id]))
@@ -351,5 +356,5 @@ class CommonBalanceReportHeaderWebkit(CommonReportHeaderWebkit):
             'credit_accounts': credit_accounts,
             'balance_accounts': balance_accounts,
         }
-
+        
         return objects, new_ids, context_report_values
