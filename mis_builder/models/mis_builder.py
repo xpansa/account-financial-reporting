@@ -117,6 +117,7 @@ class MisReportKpi(models.Model):
     report_id = fields.Many2one('mis.report',
                                 string='Report',
                                 ondelete='cascade')
+    reverse_diff = fields.Boolean(string='Reverse Diff')
 
     _order = 'sequence, id'
 
@@ -187,9 +188,11 @@ class MisReportKpi(models.Model):
             if average_base_value:
                 base_value = base_value / float(average_base_value)
             if self.compare_method == 'diff':
+
                 return self._render_num(
                     lang_id,
-                    value - base_value,
+                    base_value - value
+                    if self.reverse_diff else value - base_value,
                     self.divider, self.dp, self.suffix, sign='+')
             elif self.compare_method == 'pct':
                 if round(base_value, self.dp) != 0:
@@ -679,6 +682,7 @@ class MisReportInstance(models.Model):
         for period in self.period_ids:
             if not period.valid:
                 continue
+            print 'COMPUTING: %s ****************' % aep
             kpi_values = period._compute(lang_id, aep)
             kpi_values_by_period_ids[period.id] = kpi_values
 

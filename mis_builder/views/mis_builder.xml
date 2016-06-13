@@ -50,6 +50,7 @@
                                 <field name="dp" attrs="{'invisible': [('type', '=', 'str')]}"/>
                                 <field name="divider" attrs="{'invisible': [('type', '=', 'str')]}"/>
                                 <field name="suffix"/>
+                                <field name="reverse_diff" attrs="{'invisible': [('compare_method', '!=', 'diff')]}"/>
                                 <field name="compare_method" attrs="{'invisible': [('type', '=', 'str')]}"/>
                                 <field name="default_css_style"/>
                                 <field name="css_style"/>
@@ -159,7 +160,7 @@
                             <field name="name" placeholder="Name"/>
                         </h1>
                     </div>
-                    <div class="oe_right oe_button_box" name="buttons"> 
+                    <div class="oe_right oe_button_box" name="buttons">
                         <button type="object" name="preview" string="Preview" icon="gtk-print-preview" />
                         <button type="action" name="%(qweb_pdf_export)d" string="Print" icon="gtk-print" />
                         <button type="action" name="%(xls_export)d" string="Export" icon="gtk-execute" />
