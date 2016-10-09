@@ -118,6 +118,8 @@ class MisReportKpi(models.Model):
                                 string='Report',
                                 ondelete='cascade')
     reverse_diff = fields.Boolean(string='Reverse Diff')
+    current_only = fields.Boolean(string='Current Period Only')
+    prior_only = fields.Boolean(string='Prior Period Only')
 
     _order = 'sequence, id'
 
@@ -189,10 +191,17 @@ class MisReportKpi(models.Model):
                 base_value = base_value / float(average_base_value)
             if self.compare_method == 'diff':
 
+                the_result = base_value - value \
+                    if self.reverse_diff else value - base_value
+
+                # if self.current_only:
+                #     the_result = base_value
+
+                # if self.prior_only:
+                #     the_result = value
                 return self._render_num(
                     lang_id,
-                    base_value - value
-                    if self.reverse_diff else value - base_value,
+                    the_result,
                     self.divider, self.dp, self.suffix, sign='+')
             elif self.compare_method == 'pct':
                 if round(base_value, self.dp) != 0:
@@ -217,6 +226,7 @@ class MisReportKpi(models.Model):
         value = u'%s\N{NO-BREAK SPACE}%s%s' % \
             (value, divider_label, suffix or '')
         value = value.replace('-', u'\N{NON-BREAKING HYPHEN}')
+        value = value.replace('+', '')
         return value
 
 
@@ -530,12 +540,34 @@ class MisReportInstancePeriod(models.Model):
 
         compute_queue = self.report_instance_id.report_id.kpi_ids
         recompute_queue = []
+
+        is_current = True if self.comparison_column_ids else False
+        report_instance = self.report_instance_id
+
+        other_periods = [p for p in report_instance.period_ids]
+
+        total_periods = list()
+
+        for op in other_periods:
+            total_periods.extend([p.id for p in op.comparison_column_ids])
+
+        is_prior = True if self.id in total_periods else False
+
         while True:
             for kpi in compute_queue:
+                print kpi.name
+                print localdict
                 try:
                     kpi_val_comment = kpi.name + " = " + kpi.expression
                     kpi_eval_expression = aep.replace_expr(kpi.expression)
                     kpi_val = safe_eval(kpi_eval_expression, localdict)
+
+                    if (is_prior ) and kpi.current_only:
+                        kpi_val = 0.00
+
+                    if (is_current) and kpi.prior_only:
+                        kpi_val = 0.00
+
                 except ZeroDivisionError:
                     kpi_val = None
                     kpi_val_rendered = '#DIV/0'
