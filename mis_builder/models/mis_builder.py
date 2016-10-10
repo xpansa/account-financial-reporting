@@ -120,6 +120,7 @@ class MisReportKpi(models.Model):
     reverse_diff = fields.Boolean(string='Reverse Diff')
     current_only = fields.Boolean(string='Current Period Only')
     prior_only = fields.Boolean(string='Prior Period Only')
+    from_beginning = fields.Boolean(string='Take period from beginning')
 
     _order = 'sequence, id'
 
@@ -555,11 +556,29 @@ class MisReportInstancePeriod(models.Model):
 
         while True:
             for kpi in compute_queue:
-                print kpi.name
-                print localdict
+                if kpi.from_beginning:
+                    start_period = self.env['account.period'].search(
+                        [('special', '=', False),
+                         ('date_start', '=', report_instance.date),
+                         ('company_id', '=',
+                          report_instance.company_id.id)],
+                        order='date_start', limit=1)
+
+                    aep1 = AEP(self.env)
+                    for temp_kpi in report_instance.report_id.kpi_ids:
+                        aep1.parse_expr(temp_kpi.expression)
+                    aep1.done_parsing(report_instance.root_account)
+
+                    aep1.do_queries(report_instance.date, self.date_to,
+                                   start_period, self.period_to,
+                                   self.report_instance_id.target_move,
+                                   self._get_additional_move_line_filter())
                 try:
                     kpi_val_comment = kpi.name + " = " + kpi.expression
-                    kpi_eval_expression = aep.replace_expr(kpi.expression)
+                    if kpi.from_beginning:
+                        kpi_eval_expression = aep1.replace_expr(kpi.expression)
+                    else:
+                        kpi_eval_expression = aep.replace_expr(kpi.expression)
                     kpi_val = safe_eval(kpi_eval_expression, localdict)
 
                     if (is_prior ) and kpi.current_only:

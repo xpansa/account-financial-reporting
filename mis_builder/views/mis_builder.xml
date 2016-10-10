@@ -53,6 +53,7 @@
                                 <field name="reverse_diff" attrs="{'invisible': [('compare_method', '!=', 'diff')]}"/>
                                 <field name="current_only" attrs="{'invisible': [('compare_method', '!=', 'diff')]}"/>
                                 <field name="prior_only" attrs="{'invisible': [('compare_method', '!=', 'diff')]}"/>
+                                <field name="from_beginning" attrs="{'invisible': [('compare_method', '!=', 'diff')]}"/>
                                 <field name="compare_method" attrs="{'invisible': [('type', '=', 'str')]}"/>
                                 <field name="default_css_style"/>
                                 <field name="css_style"/>
