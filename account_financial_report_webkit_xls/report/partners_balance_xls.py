@@ -1,25 +1,6 @@
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#
-#    Copyright (c) 2013 Noviat nv/sa (www.noviat.com). All rights reserved.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
-
+# -*- coding: utf-8 -*-
+# Copyright 2009-2016 Noviat
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import xlwt
 from openerp.addons.report_xls.report_xls import report_xls
 from openerp.addons.report_xls.utils import rowcol_to_cell
@@ -34,7 +15,7 @@ def display_line(all_comparison_lines):
     return any([line.get('balance') for line in all_comparison_lines])
 
 
-class partners_balance_xls(report_xls):
+class PartnersBalanceXls(report_xls):
     column_sizes = [12, 40, 25, 17, 17, 17, 17, 17]
 
     def print_title(self, ws, _p, row_position, xlwt, _xs):
@@ -427,6 +408,7 @@ class partners_balance_xls(report_xls):
             row_pos = self.print_account_totals(
                 _xs, xlwt, ws, row_account_start, row_pos, current_account, _p)
 
-partners_balance_xls('report.account.account_report_partner_balance_xls',
-                     'account.account',
-                     parser=PartnerBalanceWebkit)
+
+PartnersBalanceXls('report.account.account_report_partner_balance_xls',
+                   'account.account',
+                   parser=PartnerBalanceWebkit)

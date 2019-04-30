@@ -1,24 +1,6 @@
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#
-#    Copyright (c) 2014 Noviat nv/sa (www.noviat.com). All rights reserved.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2009-2016 Noviat
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import time
 from openerp.report import report_sxw
@@ -29,12 +11,12 @@ _logger = logging.getLogger(__name__)
 _ir_translation_name = 'nov.account.journal.print'
 
 
-class nov_journal_print(report_sxw.rml_parse):
+class NovJournalPrint(report_sxw.rml_parse):
 
     def set_context(self, objects, data, ids, report_type=None):
         # _logger.warn('set_context, objects = %s, data = %s,
         # ids = %s', objects, data, ids)
-        super(nov_journal_print, self).set_context(objects, data, ids)
+        super(NovJournalPrint, self).set_context(objects, data, ids)
         j_obj = self.pool.get('account.journal')
         p_obj = self.pool.get('account.period')
         fy_obj = self.pool.get('account.fiscalyear')
@@ -66,10 +48,11 @@ class nov_journal_print(report_sxw.rml_parse):
                 objects.append((journal, fiscalyear))
                 self.localcontext['objects'] = self.objects = objects
 
+    # pylint: disable=old-api7-method-defined
     def __init__(self, cr, uid, name, context):
         if context is None:
             context = {}
-        super(nov_journal_print, self).__init__(cr, uid, name, context=context)
+        super(NovJournalPrint, self).__init__(cr, uid, name, context=context)
         self.localcontext.update({
             'time': time,
             'title': self._title,
@@ -139,6 +122,7 @@ class nov_journal_print(report_sxw.rml_parse):
         # field value translations.
         # If performance is no issue, you can adapt the _report_xls_template in
         # an inherited module to add field value translations.
+        # pylint: disable=sql-injection
         self.cr.execute("SELECT l.move_id AS move_id, l.id AS aml_id, "
                         "am.name AS move_name, "
                         "coalesce(am.ref,'') AS move_ref, "
@@ -215,7 +199,12 @@ class nov_journal_print(report_sxw.rml_parse):
             code_string = j_obj._report_xls_document_extra(
                 self.cr, self.uid, self.context)
             # _logger.warn('code_string= %s', code_string)
-            [x.update({'docname': eval(code_string) or '-'}) for x in lines]
+            # W0123, safe_eval doesn't apply here since
+            # code_string comes from python module
+            # pylint: disable=eval-referenced
+            [x.update(
+             {'docname': eval(code_string) or '-'})  # pylint: disable=W0123
+             for x in lines]
 
         # group lines
         if self.group_entries:
@@ -321,6 +310,7 @@ class nov_journal_print(report_sxw.rml_parse):
         else:
             fiscalyear = object[1]
             period_ids = [x.id for x in fiscalyear.period_ids]
+        # pylint: disable=sql-injection
         select = "SELECT sum(" + field + ") FROM account_move_line l " \
             "INNER JOIN account_move am ON l.move_id = am.id " \
             "WHERE l.period_id IN %s AND l.journal_id=%s AND am.state IN %s"
@@ -348,11 +338,12 @@ class nov_journal_print(report_sxw.rml_parse):
         if isinstance(value, (float, int)) and not value:
             return ''
         else:
-            return super(nov_journal_print, self).formatLang(
+            return super(NovJournalPrint, self).formatLang(
                 value, digits,
                 date, date_time, grouping, monetary, dp, currency_obj)
+
 
 report_sxw.report_sxw(
     'report.nov.account.journal.print', 'account.journal',
     'addons/account_journal_report_xls/report/nov_account_journal.rml',
-    parser=nov_journal_print, header=False)
+    parser=NovJournalPrint, header=False)

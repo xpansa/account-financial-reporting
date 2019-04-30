@@ -1,41 +1,24 @@
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#
-#    Copyright (c) 2013 Noviat nv/sa (www.noviat.com). All rights reserved.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# -*- coding: utf-8 -*-
+# Copyright 2009-2016 Noviat
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import xlwt
 from datetime import datetime
-from openerp.osv import orm
 from openerp.addons.report_xls.report_xls import report_xls
 from openerp.addons.report_xls.utils import rowcol_to_cell, _render
-from .nov_account_journal import nov_journal_print
+from .nov_account_journal import NovJournalPrint
 from openerp.tools.translate import _
+from openerp.exceptions import except_orm
 import logging
 _logger = logging.getLogger(__name__)
 
 
-class account_journal_xls_parser(nov_journal_print):
+class AccountJournalXlsParser(NovJournalPrint):
 
+    # pylint: disable=old-api7-method-defined
     def __init__(self, cr, uid, name, context):
-        super(account_journal_xls_parser, self).__init__(cr, uid, name,
-                                                         context=context)
+        super(AccountJournalXlsParser, self).__init__(
+            cr, uid, name, context=context)
         journal_obj = self.pool.get('account.journal')
         self.context = context
         wanted_list = journal_obj._report_xls_fields(cr, uid, context)
@@ -47,11 +30,12 @@ class account_journal_xls_parser(nov_journal_print):
         })
 
 
-class account_journal_xls(report_xls):
+class AccountJournalXls(report_xls):
 
+    # pylint: disable=old-api7-method-defined
     def __init__(self, name, table, rml=False, parser=False, header=True,
                  store=False):
-        super(account_journal_xls, self).__init__(
+        super(AccountJournalXls, self).__init__(
             name, table, rml, parser, header, store)
 
         # Cell Styles
@@ -323,7 +307,7 @@ class account_journal_xls(report_xls):
         cols_number = len(wanted_list)
         vat_summary_cols_number = len(vat_summary_wanted_list)
         if vat_summary_cols_number > cols_number:
-            raise orm.except_orm(
+            raise except_orm(
                 _('Programming Error!'),
                 _("vat_summary_cols_number should be < cols_number !"))
         index = 0
@@ -378,10 +362,12 @@ class account_journal_xls(report_xls):
             'credit')
         if not (self.credit_pos and self.debit_pos) and 'balance' \
                 in wanted_list:
-            raise orm.except_orm(_('Customisation Error!'),
-                                 _("The 'Balance' field is a calculated XLS \
-                                    field requiring the presence of the \
-                                    'Debit' and 'Credit' fields !"))
+            raise except_orm(
+                _('Customisation Error!'),
+                _("The 'Balance' field is a calculated XLS \
+                  field requiring the presence of the \
+                  'Debit' and 'Credit' fields !")
+            )
 
         for o in objects:
 
@@ -404,5 +390,8 @@ class account_journal_xls(report_xls):
             row_pos = self._journal_lines(o, ws, _p, row_pos, _xs)
             row_pos = self._journal_vat_summary(o, ws, _p, row_pos, _xs)
 
-account_journal_xls('report.nov.account.journal.xls', 'account.journal.period',
-                    parser=account_journal_xls_parser)
+
+AccountJournalXls(
+    'report.nov.account.journal.xls', 'account.journal.period',
+    parser=AccountJournalXlsParser,
+)

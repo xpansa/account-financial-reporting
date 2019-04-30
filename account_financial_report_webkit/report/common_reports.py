@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 ##############################################################################
 #
 #    Author: Nicolas Bessi, Guewen Baconnier
@@ -24,10 +24,11 @@
 
 import logging
 
-from openerp.osv import osv
+from openerp.exceptions import except_orm
 from openerp.tools.translate import _
 from openerp.addons.account.report.common_report_header \
     import common_report_header
+from collections import OrderedDict
 
 _logger = logging.getLogger('financial.reports.webkit')
 
@@ -195,9 +196,20 @@ class CommonReportHeaderWebkit(common_report_header):
         acc_obj = self.pool.get('account.account')
         for account_id in account_ids:
             accounts.append(account_id)
-            accounts += acc_obj._get_children_and_consol(
+            children_acc_ids = acc_obj._get_children_and_consol(
                 self.cursor, self.uid, account_id, context=context)
-        res_ids = list(set(accounts))
+            if context.get('account_level'):
+                domain = [('level', '<=', context['account_level']),
+                          ('id', 'in', children_acc_ids)]
+                accounts += self.pool['account.account'].search(
+                    self.cursor, self.uid, domain)
+            else:
+                accounts += children_acc_ids
+        # remove duplicate account IDs in accounts
+        # We don't use list(set(accounts)) to keep the order
+        # cf http://stackoverflow.com/questions/7961363/
+        # removing-duplicates-in-lists
+        res_ids = list(OrderedDict.fromkeys(accounts))
         res_ids = self.sort_accounts_with_structure(
             account_ids, res_ids, context=context)
 
@@ -358,7 +370,7 @@ class CommonReportHeaderWebkit(common_report_header):
                                  limit=1,
                                  order='date_start %s' % (order,))
         if not p_id:
-            raise osv.except_osv(_('No period found'), '')
+            raise except_orm(_('No period found'), '')
         return period_obj.browse(self.cursor, self.uid, p_id[0])
 
     ###############################
@@ -401,7 +413,7 @@ class CommonReportHeaderWebkit(common_report_header):
         opening_period_selected = self.get_included_opening_period(
             start_period)
         if not opening_period_selected:
-            raise osv.except_osv(
+            raise except_orm(
                 _('Error'),
                 _('No opening period found to compute the opening balances.\n'
                   'You have to configure a period on the first of January'
@@ -487,7 +499,7 @@ class CommonReportHeaderWebkit(common_report_header):
                            target_move, mode='include_opening'):
         """Get account move lines base on form data"""
         if mode not in ('include_opening', 'exclude_opening'):
-            raise osv.except_osv(
+            raise except_orm(
                 _('Invalid query mode'),
                 _('Must be in include_opening, exclude_opening'))
 
@@ -499,7 +511,7 @@ class CommonReportHeaderWebkit(common_report_header):
             return self._get_move_ids_from_dates(account_id, start, stop,
                                                  target_move)
         else:
-            raise osv.except_osv(
+            raise except_orm(
                 _('No valid filter'), _('Please set a valid time filter'))
 
     def _get_move_line_datas(self, move_line_ids,

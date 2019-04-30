@@ -1,25 +1,6 @@
-# -*- encoding: utf-8 -*-
-##############################################################################
-#
-#    OpenERP, Open Source Management Solution
-#
-#    Copyright (c) 2013 Noviat nv/sa (www.noviat.com). All rights reserved.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
-
+# -*- coding: utf-8 -*-
+# Copyright 2009-2016 Noviat
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 import xlwt
 from datetime import datetime
 from openerp.addons.report_xls.report_xls import report_xls
@@ -31,7 +12,7 @@ from openerp.tools.translate import _
 # _logger = logging.getLogger(__name__)
 
 
-class open_invoices_xls(report_xls):
+class OpenInvoicesXls(report_xls):
     column_sizes = [12, 12, 20, 15, 30, 30, 14, 14, 14, 14, 14, 14, 10]
 
     def global_initializations(self, wb, _p, xlwt, _xs, objects, data):
@@ -356,7 +337,7 @@ class open_invoices_xls(report_xls):
                      cumul_balance, style_line_decimal)]
 
         if _p.amount_currency(data):
-            if account.currency_id:
+            if line.get('currency_code'):
                 c_specs += [
                     ('curramount', 1, 0, 'number',
                      line.get('amount_currency') or 0.0, None,
@@ -824,5 +805,6 @@ class open_invoices_xls(report_xls):
                     row_pos, acc, _xs, xlwt, _p, data)
             row_pos += 1
 
-open_invoices_xls('report.account.account_report_open_invoices_xls',
-                  'account.account', parser=PartnersOpenInvoicesWebkit)
+
+OpenInvoicesXls('report.account.account_report_open_invoices_xls',
+                'account.account', parser=PartnersOpenInvoicesWebkit)
