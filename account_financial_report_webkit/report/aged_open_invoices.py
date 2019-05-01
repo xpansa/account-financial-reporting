@@ -415,7 +415,6 @@ class AccountAgedOpenInvoicesWebkit(PartnersOpenInvoicesWebkit):
 HeaderFooterTextWebKitParser(
     'report.account.account_aged_open_invoices_webkit',
     'account.account',
-    'addons/account_financial_report_webkit/report/templates/\
-                                            aged_open_invoices_webkit.mako',
+    'addons/account_financial_report_webkit/report/templates/aged_open_invoices_webkit.mako',
     parser=AccountAgedOpenInvoicesWebkit,
 )

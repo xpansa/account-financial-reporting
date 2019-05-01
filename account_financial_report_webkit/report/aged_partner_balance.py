@@ -427,7 +427,6 @@ class AccountAgedTrialBalanceWebkit(PartnersOpenInvoicesWebkit):
 HeaderFooterTextWebKitParser(
     'report.account.account_aged_trial_balance_webkit',
     'account.account',
-    'addons/account_financial_report_webkit/report/templates/\
-                                                    aged_trial_webkit.mako',
+    'addons/account_financial_report_webkit/report/templates/aged_trial_webkit.mako',
     parser=AccountAgedTrialBalanceWebkit,
 )
